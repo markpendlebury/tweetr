@@ -31,12 +31,17 @@ namespace tweetr
 
         static async Task Main(string[] args)
         {
-            try
+           await MainMenu();
+            
+        }
+
+        private static async Task MainMenu()
+        {
+             try
             {
                 var userClient = new TwitterClient(CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, ACCESS_SECRET);
                 var user = await userClient.Users.GetAuthenticatedUserAsync();
 
-                Console.Clear();
                 DisplayLogo(user);
 
                 Console.WriteLine();
@@ -51,7 +56,7 @@ namespace tweetr
                 {
                     case ConsoleKey.D1: 
                     {
-                        Console.WriteLine("Not implemented");
+                        await SendTweet(userClient, user);
                         break;
                     }
                     case ConsoleKey.D2:
@@ -73,11 +78,27 @@ namespace tweetr
                 Console.WriteLine(ex.ToString());
                 throw;
             }
+        }
+
+        static async Task SendTweet(TwitterClient userClient, IAuthenticatedUser user)
+        {
             
+            DisplayLogo(user);
+            Console.WriteLine("Send a Tweet:");
+            Console.WriteLine();
+            Console.Write(":> ");
+            string tweetBody = Console.ReadLine();
+            Console.WriteLine();
+            Console.Write("Sending tweet...");
+            await userClient.Tweets.PublishTweetAsync(tweetBody);
+            Console.WriteLine("Sent!");
+            Thread.Sleep(1);
+            await MainMenu();
         }
 
         private static void DisplayLogo(IAuthenticatedUser user)
         {
+            Console.Clear();
             string[] lines = File.ReadAllLines("./logo.txt");
             foreach(var line in lines)
             {
@@ -92,7 +113,6 @@ namespace tweetr
         {
             try
             {
-                Console.Clear();
                 DisplayLogo(user);
                 Console.WriteLine();
                 Console.WriteLine("Retrieving timeline..");
