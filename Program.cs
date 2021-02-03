@@ -1,0 +1,208 @@
+﻿using System;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using Pastel;
+using Tweetinvi;
+using Tweetinvi.Models;
+using Tweetinvi.Parameters;
+
+namespace tweetr
+{
+    class Program
+    {
+        static double scanDelay = 0.3; // Seconds
+        static double searchDelay = 30; // Seconds
+        static int initialPageSize = 10;
+
+
+
+        static Color titleColor = Color.FromArgb(163, 80, 80);
+        static Color subTitleColor = Color.FromArgb(97, 118, 145);
+        static Color mainTextColor = Color.FromArgb(140, 140, 140);
+        static Color highlightColor = Color.FromArgb(121, 165, 209);
+        static Color seperatorColor = Color.FromArgb(87, 87, 87);
+
+        static string CONSUMER_KEY = Environment.GetEnvironmentVariable("CONSUMER_KEY");
+        static string CONSUMER_SECRET = Environment.GetEnvironmentVariable("CONSUMER_SECRET");
+        static string ACCESS_TOKEN = Environment.GetEnvironmentVariable("ACCESS_TOKEN");
+        static string ACCESS_SECRET = Environment.GetEnvironmentVariable("ACCESS_SECRET");
+
+        static async Task Main(string[] args)
+        {
+            try
+            {
+                var userClient = new TwitterClient(CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, ACCESS_SECRET);
+                var user = await userClient.Users.GetAuthenticatedUserAsync();
+                Console.Clear();
+                Console.WriteLine($"Logged in as {user}");
+                Console.WriteLine("-------------------");
+                Console.WriteLine();
+                Console.WriteLine();
+                await LoadLiveTimeline(userClient);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                throw;
+            }
+            
+        }
+
+        static async Task LoadLiveTimeline(TwitterClient userClient)
+        {
+            try
+            {
+                Console.WriteLine("Retrieving timeline..");
+
+                var homeTimelineTweets = await userClient.Timelines.GetHomeTimelineAsync(new GetHomeTimelineParameters(){PageSize = initialPageSize});
+                Console.WriteLine();
+                Console.WriteLine("---------------------------------------------------------".Pastel(seperatorColor));
+
+                ITweet finalTweet = null;
+
+                if (homeTimelineTweets.Length > 0)
+                {
+                    homeTimelineTweets = homeTimelineTweets.OrderBy(t => t.CreatedAt.UtcDateTime).ToArray();
+                    foreach (var tweet in homeTimelineTweets)
+                    {
+                        DisplayTweet(tweet);
+                        finalTweet = tweet;
+                        Thread.Sleep(TimeSpan.FromSeconds(scanDelay));
+                    }
+                }
+
+                
+
+                while(true)
+                {
+                    Thread.Sleep(TimeSpan.FromSeconds(searchDelay));
+                    var parameters = new GetHomeTimelineParameters(){
+                        SinceId = finalTweet.Id,
+                        PageSize = 1,
+                    };
+
+                    var latestTweet = await userClient.Timelines.GetHomeTimelineAsync(parameters);
+                    if(latestTweet.Length > 0)
+                    {
+                        if(latestTweet[0] != finalTweet)
+                        {
+                            DisplayTweet(latestTweet.Last());
+                            finalTweet = latestTweet.Last();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                throw;
+            }
+        }
+
+        private static void DisplayTweet(Tweetinvi.Models.ITweet tweet)
+        {
+            Console.WriteLine();
+
+            Console.Write($"{tweet.CreatedBy.Name} ".Pastel(titleColor));
+            if(tweet.IsRetweet)
+            {
+                Console.Write($"[RT] ".Pastel(subTitleColor));
+            }
+            Console.WriteLine($"[{getTimeElapsed(tweet.CreatedAt)}]".Pastel(subTitleColor));
+            Console.WriteLine("---------------------------------------------------------".Pastel(seperatorColor));
+            Console.WriteLine();
+            if(tweet.IsRetweet)
+            {
+                Console.WriteLine(FormatTweetBody(tweet.RetweetedTweet.FullText.Pastel(mainTextColor)));
+            }
+            else
+            {
+                Console.WriteLine(FormatTweetBody(tweet.FullText.Pastel(mainTextColor)));
+            }
+            
+            Console.WriteLine();
+            Console.WriteLine("---------------------------------------------------------".Pastel(seperatorColor));
+            Console.WriteLine();
+        }
+
+        private static string FormatTweetBody(string fullText)
+        {
+            string[] words = fullText.Split(' ');
+            StringBuilder output = new StringBuilder();
+
+            for (int i = 0; i < words.Length; i++)
+            {
+                if(words[i].Contains("@"))
+                {
+                    words[i] = words[i].Pastel(highlightColor);
+                }
+                if(words[i].Contains("#"))
+                {
+                    words[i] = words[i].Pastel(highlightColor);
+                }
+                if(words[i].Contains("http"))
+                {
+                    words[i] = words[i].Pastel(highlightColor);
+                }
+                output.Append(words[i]);
+                output.Append(" ");
+            }
+
+            return output.ToString();
+
+        }
+
+        static string getTimeElapsed(DateTimeOffset createdAt)
+        {
+            DateTime created = DateTime.Parse($"{createdAt.Hour}:{createdAt.Minute}:{createdAt.Second} {createdAt.Day}/{createdAt.Month}/{createdAt.Year}");
+
+            TimeSpan since = DateTime.Now.Subtract(created);
+            
+            string result = string.Empty;
+            
+
+            if (since <= TimeSpan.FromSeconds(60))
+            {
+                result = string.Format("{0} seconds ago", since.Seconds);
+            }
+            else if (since <= TimeSpan.FromMinutes(60))
+            {
+                result = since.Minutes > 1 ?
+                    String.Format("{0} minutes ago", since.Minutes) :
+                    "a minute ago";
+            }
+            else if (since <= TimeSpan.FromHours(24))
+            {
+                result = since.Hours > 1 ?
+                    String.Format("{0} hours ago", since.Hours) :
+                    "an hour ago";
+            }
+            else if (since <= TimeSpan.FromDays(30))
+            {
+                result = since.Days > 1 ?
+                    String.Format("{0} days ago", since.Days) :
+                    "yesterday";
+            }
+            else if (since <= TimeSpan.FromDays(365))
+            {
+                result = since.Days > 30 ?
+                    String.Format("{0} months ago", since.Days / 30) :
+                    "a month ago";
+            }
+            else
+            {
+                result = since.Days > 365 ?
+                    String.Format("{0} years ago", since.Days / 365) :
+                    "a year ago";
+            }
+
+            return result;
+
+
+        }
+
+    }
+}
