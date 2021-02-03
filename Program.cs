@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -16,8 +17,6 @@ namespace tweetr
         static double scanDelay = 0.3; // Seconds
         static double searchDelay = 30; // Seconds
         static int initialPageSize = 10;
-
-
 
         static Color titleColor = Color.FromArgb(163, 80, 80);
         static Color subTitleColor = Color.FromArgb(97, 118, 145);
@@ -36,12 +35,38 @@ namespace tweetr
             {
                 var userClient = new TwitterClient(CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, ACCESS_SECRET);
                 var user = await userClient.Users.GetAuthenticatedUserAsync();
+
                 Console.Clear();
-                Console.WriteLine($"Logged in as {user}");
-                Console.WriteLine("-------------------");
+                DisplayLogo(user);
+
                 Console.WriteLine();
+                Console.WriteLine("1. Send Tweet");
+                Console.WriteLine("2. Stream timeline");
+                Console.WriteLine("3. Exit");
                 Console.WriteLine();
-                await LoadLiveTimeline(userClient);
+                Console.Write(":> ");
+                ConsoleKey selection = Console.ReadKey().Key;
+                Console.WriteLine();
+                switch(selection)
+                {
+                    case ConsoleKey.D1: 
+                    {
+                        Console.WriteLine("Not implemented");
+                        break;
+                    }
+                    case ConsoleKey.D2:
+                    {
+                        await LoadLiveTimeline(userClient, user);
+                        break;
+                    }
+                    case ConsoleKey.D3:
+                    {
+                        Console.WriteLine("Ok Byee!");
+                        Environment.Exit(1);
+                        break;
+                    }
+                }
+                
             }
             catch (Exception ex)
             {
@@ -51,10 +76,25 @@ namespace tweetr
             
         }
 
-        static async Task LoadLiveTimeline(TwitterClient userClient)
+        private static void DisplayLogo(IAuthenticatedUser user)
+        {
+            string[] lines = File.ReadAllLines("./logo.txt");
+            foreach(var line in lines)
+            {
+                Console.WriteLine(line);
+            }
+            Console.WriteLine("                by Mark Pendlebury");
+            Console.WriteLine();
+            // Console.WriteLine($"Logged in as {user.ScreenName}");
+        }
+
+        static async Task LoadLiveTimeline(TwitterClient userClient, IAuthenticatedUser user)
         {
             try
             {
+                Console.Clear();
+                DisplayLogo(user);
+                Console.WriteLine();
                 Console.WriteLine("Retrieving timeline..");
 
                 var homeTimelineTweets = await userClient.Timelines.GetHomeTimelineAsync(new GetHomeTimelineParameters(){PageSize = initialPageSize});
