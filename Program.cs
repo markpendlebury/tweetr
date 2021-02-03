@@ -23,6 +23,7 @@ namespace tweetr
         static Color mainTextColor = Color.FromArgb(140, 140, 140);
         static Color highlightColor = Color.FromArgb(121, 165, 209);
         static Color seperatorColor = Color.FromArgb(87, 87, 87);
+        static Color urlColor = Color.FromArgb(61, 48, 252);
 
         static string CONSUMER_KEY = Environment.GetEnvironmentVariable("CONSUMER_KEY");
         static string CONSUMER_SECRET = Environment.GetEnvironmentVariable("CONSUMER_SECRET");
@@ -31,13 +32,20 @@ namespace tweetr
 
         static async Task Main(string[] args)
         {
-           await MainMenu();
-            
+            // DEBUGGING
+            // var userClient = new TwitterClient(CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, ACCESS_SECRET);
+            // var user = await userClient.Users.GetAuthenticatedUserAsync();
+            // await LoadLiveTimeline(userClient, user);
+            // END DEBUGGING
+
+
+            await MainMenu();
+
         }
 
         private static async Task MainMenu()
         {
-             try
+            try
             {
                 var userClient = new TwitterClient(CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, ACCESS_SECRET);
                 var user = await userClient.Users.GetAuthenticatedUserAsync();
@@ -45,33 +53,36 @@ namespace tweetr
                 DisplayLogo(user);
 
                 Console.WriteLine();
-                Console.WriteLine("1. Send Tweet");
+                Console.WriteLine("1. Send Tweet (Not Implemented)");
                 Console.WriteLine("2. Stream timeline");
                 Console.WriteLine("3. Exit");
                 Console.WriteLine();
                 Console.Write(":> ");
                 ConsoleKey selection = Console.ReadKey().Key;
                 Console.WriteLine();
-                switch(selection)
+
+
+
+                switch (selection)
                 {
-                    case ConsoleKey.D1: 
-                    {
-                        await SendTweet(userClient, user);
-                        break;
-                    }
+                    case ConsoleKey.D1:
+                        {
+                            // await SendTweet(userClient, user);
+                            throw new NotImplementedException();
+                        }
                     case ConsoleKey.D2:
-                    {
-                        await LoadLiveTimeline(userClient, user);
-                        break;
-                    }
+                        {
+                            await LoadLiveTimeline(userClient, user);
+                            break;
+                        }
                     case ConsoleKey.D3:
-                    {
-                        Console.WriteLine("Ok Byee!");
-                        Environment.Exit(1);
-                        break;
-                    }
+                        {
+                            Console.WriteLine("Ok Byee!");
+                            Environment.Exit(1);
+                            break;
+                        }
                 }
-                
+
             }
             catch (Exception ex)
             {
@@ -82,7 +93,7 @@ namespace tweetr
 
         static async Task SendTweet(TwitterClient userClient, IAuthenticatedUser user)
         {
-            
+
             DisplayLogo(user);
             Console.WriteLine("Send a Tweet:");
             Console.WriteLine();
@@ -100,7 +111,7 @@ namespace tweetr
         {
             Console.Clear();
             string[] lines = File.ReadAllLines("./logo.txt");
-            foreach(var line in lines)
+            foreach (var line in lines)
             {
                 Console.WriteLine(line);
             }
@@ -117,7 +128,7 @@ namespace tweetr
                 Console.WriteLine();
                 Console.WriteLine("Retrieving timeline..");
 
-                var homeTimelineTweets = await userClient.Timelines.GetHomeTimelineAsync(new GetHomeTimelineParameters(){PageSize = initialPageSize});
+                var homeTimelineTweets = await userClient.Timelines.GetHomeTimelineAsync(new GetHomeTimelineParameters() { PageSize = initialPageSize });
                 Console.WriteLine();
                 Console.WriteLine("---------------------------------------------------------".Pastel(seperatorColor));
 
@@ -134,20 +145,21 @@ namespace tweetr
                     }
                 }
 
-                
 
-                while(true)
+
+                while (true)
                 {
                     Thread.Sleep(TimeSpan.FromSeconds(searchDelay));
-                    var parameters = new GetHomeTimelineParameters(){
+                    var parameters = new GetHomeTimelineParameters()
+                    {
                         SinceId = finalTweet.Id,
                         PageSize = 1,
                     };
 
                     var latestTweet = await userClient.Timelines.GetHomeTimelineAsync(parameters);
-                    if(latestTweet.Length > 0)
+                    if (latestTweet.Length > 0)
                     {
-                        if(latestTweet[0] != finalTweet)
+                        if (latestTweet[0] != finalTweet)
                         {
                             DisplayTweet(latestTweet.Last());
                             finalTweet = latestTweet.Last();
@@ -167,14 +179,14 @@ namespace tweetr
             Console.WriteLine();
 
             Console.Write($"{tweet.CreatedBy.Name} ".Pastel(titleColor));
-            if(tweet.IsRetweet)
+            if (tweet.IsRetweet)
             {
                 Console.Write($"[RT] ".Pastel(subTitleColor));
             }
             Console.WriteLine($"[{getTimeElapsed(tweet.CreatedAt)}]".Pastel(subTitleColor));
             Console.WriteLine("---------------------------------------------------------".Pastel(seperatorColor));
             Console.WriteLine();
-            if(tweet.IsRetweet)
+            if (tweet.IsRetweet)
             {
                 Console.WriteLine(FormatTweetBody(tweet.RetweetedTweet.FullText.Pastel(mainTextColor)));
             }
@@ -182,7 +194,15 @@ namespace tweetr
             {
                 Console.WriteLine(FormatTweetBody(tweet.FullText.Pastel(mainTextColor)));
             }
-            
+
+            if(tweet.Media.Count > 0)
+            {
+                foreach(var image in tweet.Media)
+                {
+                    Console.WriteLine($"[{image.MediaURLHttps}]".Pastel(urlColor));
+                }
+            }
+
             Console.WriteLine();
             Console.WriteLine("---------------------------------------------------------".Pastel(seperatorColor));
             Console.WriteLine();
@@ -195,15 +215,15 @@ namespace tweetr
 
             for (int i = 0; i < words.Length; i++)
             {
-                if(words[i].Contains("@"))
+                if (words[i].Contains("@"))
                 {
                     words[i] = words[i].Pastel(highlightColor);
                 }
-                if(words[i].Contains("#"))
+                if (words[i].Contains("#"))
                 {
                     words[i] = words[i].Pastel(highlightColor);
                 }
-                if(words[i].Contains("http"))
+                if (words[i].Contains("http"))
                 {
                     words[i] = words[i].Pastel(highlightColor);
                 }
@@ -220,9 +240,9 @@ namespace tweetr
             DateTime created = DateTime.Parse($"{createdAt.Hour}:{createdAt.Minute}:{createdAt.Second} {createdAt.Day}/{createdAt.Month}/{createdAt.Year}");
 
             TimeSpan since = DateTime.Now.Subtract(created);
-            
+
             string result = string.Empty;
-            
+
 
             if (since <= TimeSpan.FromSeconds(60))
             {
