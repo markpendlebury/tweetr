@@ -67,8 +67,8 @@ namespace tweetr
                 {
                     case ConsoleKey.D1:
                         {
-                            // await SendTweet(userClient, user);
-                            throw new NotImplementedException();
+                            await SendTweet(userClient, user);
+                            break;
                         }
                     case ConsoleKey.D2:
                         {
