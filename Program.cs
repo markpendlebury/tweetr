@@ -202,8 +202,10 @@ namespace tweetr
                     Console.WriteLine($"[{image.MediaURLHttps}]".Pastel(urlColor));
                 }
             }
-
+            string replyCount = tweet.RetweetCount.ToString() ?? "0";
+            
             Console.WriteLine();
+            Console.WriteLine($"💬 {replyCount}    🔁 {tweet.RetweetCount}     💙 {tweet.FavoriteCount}");
             Console.WriteLine("---------------------------------------------------------".Pastel(seperatorColor));
             Console.WriteLine();
         }
