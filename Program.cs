@@ -37,7 +37,7 @@ namespace tweetr
                             internalHelpers.DisplayLogo(user);
 
                             Console.WriteLine();
-                            Console.WriteLine("1. Send Tweet (Not Implemented)");
+                            Console.WriteLine("1. Send Tweet");
                             Console.WriteLine("2. Stream timeline");
                             Console.WriteLine("3. Exit");
                             Console.WriteLine();
