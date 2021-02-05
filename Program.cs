@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Tweetinvi;
 using tweetr.Factories;
 using tweetr.Helpers;
+using tweetr.Models;
 
 namespace tweetr
 {
@@ -13,6 +15,7 @@ namespace tweetr
         {
             try
             {
+                CheckEnvironment();
                 var serviceCollection = new ServiceCollection();
                 ConfigureServices(serviceCollection);
                 var serviceProvider = serviceCollection.BuildServiceProvider();
@@ -78,6 +81,32 @@ namespace tweetr
                 throw;
             }
 
+        }
+
+        private static void CheckEnvironment()
+        {
+            Console.WriteLine("Starting up...");
+
+            EnvironmentModel environment = new EnvironmentModel();
+
+            bool envOK = true;
+
+            foreach (PropertyInfo prop in environment.GetType().GetProperties())
+            {
+
+                var value = prop.GetValue(environment);
+                if(value == null)
+                {
+                    envOK = false;
+                    Console.WriteLine($"Environment variable {prop.Name} is empty");
+                }
+            }
+
+            if(!envOK)
+            {
+                Console.WriteLine("Failed to configure environment, please fix the above errors and try again...");
+                Environment.Exit(1);
+            }
         }
 
         private static void ConfigureServices(ServiceCollection serviceCollection)
