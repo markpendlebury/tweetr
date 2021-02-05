@@ -8,6 +8,7 @@ using Tweetinvi;
 using Tweetinvi.Models;
 using Tweetinvi.Parameters;
 using tweetr.Helpers;
+using tweetr.Models;
 
 namespace tweetr.Factories
 {
@@ -16,14 +17,14 @@ namespace tweetr.Factories
         private int initialPageSize = 10;
         private double scanDelay = 0.3; // Seconds
         private double searchDelay = 30; // Seconds
-        private Color seperatorColor = Color.FromArgb(87, 87, 87);
-
 
         private readonly InternalHelpers internalHelpers;
+        private readonly Colors colors;
 
         public TwitterFactory(InternalHelpers internalHelpers)
         {
             this.internalHelpers = internalHelpers;
+            this.colors = new Colors();
         }
         internal async Task SendTweet(TwitterClient userClient, IAuthenticatedUser user)
         {
@@ -38,7 +39,6 @@ namespace tweetr.Factories
             await userClient.Tweets.PublishTweetAsync(tweetBody);
             Console.WriteLine("Sent!");
             Thread.Sleep(1);
-            // await mainWorker.MainMenu(userClient);
         }
 
         internal async Task LoadLiveTimeline(TwitterClient userClient, IAuthenticatedUser user)
@@ -51,7 +51,7 @@ namespace tweetr.Factories
 
                 var homeTimelineTweets = await userClient.Timelines.GetHomeTimelineAsync(new GetHomeTimelineParameters() { PageSize = initialPageSize });
                 Console.WriteLine();
-                Console.WriteLine("---------------------------------------------------------".Pastel(seperatorColor));
+                Console.WriteLine("---------------------------------------------------------".Pastel(colors.seperatorColor));
 
                 ITweet finalTweet = null;
 
@@ -65,8 +65,6 @@ namespace tweetr.Factories
                         Thread.Sleep(TimeSpan.FromSeconds(scanDelay));
                     }
                 }
-
-
 
                 while (true)
                 {

@@ -65,8 +65,6 @@ namespace tweetr
                                     }
                             }
                         }
-
-
                     }
                     catch (Exception ex)
                     {

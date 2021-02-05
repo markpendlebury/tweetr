@@ -4,18 +4,21 @@ using System.IO;
 using System.Text;
 using Pastel;
 using Tweetinvi.Models;
+using tweetr.Models;
 
 namespace tweetr.Helpers
 {
     public class InternalHelpers
     {
-        private Color titleColor = Color.FromArgb(163, 80, 80);
-        private Color subTitleColor = Color.FromArgb(97, 118, 145);
-        private Color mainTextColor = Color.FromArgb(140, 140, 140);
-        private Color highlightColor = Color.FromArgb(121, 165, 209);
-        private Color seperatorColor = Color.FromArgb(87, 87, 87);
-
+       
         static Color urlColor = Color.FromArgb(61, 48, 252);
+
+        private readonly Colors colors;
+
+        public InternalHelpers()
+        {
+            this.colors = new Colors();
+        }
         
         internal void DisplayLogo(IAuthenticatedUser user)
         {
@@ -34,21 +37,21 @@ namespace tweetr.Helpers
         {
             Console.WriteLine();
 
-            Console.Write($"{tweet.CreatedBy.Name} ".Pastel(titleColor));
+            Console.Write($"{tweet.CreatedBy.Name} ".Pastel(colors.titleColor));
             if (tweet.IsRetweet)
             {
-                Console.Write($"[RT] ".Pastel(subTitleColor));
+                Console.Write($"[RT] ".Pastel(colors.subTitleColor));
             }
-            Console.WriteLine($"[{getTimeElapsed(tweet.CreatedAt)}]".Pastel(subTitleColor));
-            Console.WriteLine("---------------------------------------------------------".Pastel(seperatorColor));
+            Console.WriteLine($"[{getTimeElapsed(tweet.CreatedAt)}]".Pastel(colors.subTitleColor));
+            Console.WriteLine("---------------------------------------------------------".Pastel(colors.seperatorColor));
             Console.WriteLine();
             if (tweet.IsRetweet)
             {
-                Console.WriteLine(FormatTweetBody(tweet.RetweetedTweet.FullText.Pastel(mainTextColor)));
+                Console.WriteLine(FormatTweetBody(tweet.RetweetedTweet.FullText.Pastel(colors.mainTextColor)));
             }
             else
             {
-                Console.WriteLine(FormatTweetBody(tweet.FullText.Pastel(mainTextColor)));
+                Console.WriteLine(FormatTweetBody(tweet.FullText.Pastel(colors.mainTextColor)));
             }
 
             if(tweet.Media.Count > 0)
@@ -62,7 +65,7 @@ namespace tweetr.Helpers
             
             Console.WriteLine();
             Console.WriteLine($"💬 {replyCount}    🔁 {tweet.RetweetCount}     💙 {tweet.FavoriteCount}");
-            Console.WriteLine("---------------------------------------------------------".Pastel(seperatorColor));
+            Console.WriteLine("---------------------------------------------------------".Pastel(colors.seperatorColor));
             Console.WriteLine();
         }
 
@@ -75,15 +78,15 @@ namespace tweetr.Helpers
             {
                 if (words[i].Contains("@"))
                 {
-                    words[i] = words[i].Pastel(highlightColor);
+                    words[i] = words[i].Pastel(colors.highlightColor);
                 }
                 if (words[i].Contains("#"))
                 {
-                    words[i] = words[i].Pastel(highlightColor);
+                    words[i] = words[i].Pastel(colors.highlightColor);
                 }
                 if (words[i].Contains("http"))
                 {
-                    words[i] = words[i].Pastel(highlightColor);
+                    words[i] = words[i].Pastel(colors.highlightColor);
                 }
                 output.Append(words[i]);
                 output.Append(" ");

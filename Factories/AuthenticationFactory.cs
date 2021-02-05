@@ -45,8 +45,6 @@ namespace tweetr.Factories
                     HttpListenerContext context = listener.GetContext();
                     HttpListenerRequest request = context.Request;
 
-                    // TODO: read and parse the JSON data from 'request.InputStream'
-
                     using( HttpListenerResponse response = context.Response )
                     {
                         var appClient = new TwitterClient(Environment.GetEnvironmentVariable("CONSUMER_KEY"), Environment.GetEnvironmentVariable("CONSUMER_SECRET"));
@@ -60,7 +58,6 @@ namespace tweetr.Factories
 
                         // Congratulations the user is now authenticated!
                         var userClient = new TwitterClient(userCreds);
-                        // var user = await userClient.Users.GetAuthenticatedUserAsync();
 
                         return userClient;
                     }
