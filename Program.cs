@@ -17,7 +17,6 @@ namespace tweetr
                 ConfigureServices(serviceCollection);
                 var serviceProvider = serviceCollection.BuildServiceProvider();
 
-
                 var authFactory = serviceProvider.GetService<AuthFactory>();
                 var internalHelpers = serviceProvider.GetService<InternalHelpers>();
                 var twitterFactory = serviceProvider.GetService<TwitterFactory>();
