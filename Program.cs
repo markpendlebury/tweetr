@@ -21,7 +21,6 @@ namespace tweetr
                 var authFactory = serviceProvider.GetService<AuthFactory>();
                 var internalHelpers = serviceProvider.GetService<InternalHelpers>();
                 var twitterFactory = serviceProvider.GetService<TwitterFactory>();
-                // var mainWorker = serviceProvider.GetService<MainWorker>();
 
                 string authUrl = await authFactory.GetAuthUrl();
 
@@ -89,9 +88,6 @@ namespace tweetr
             // Factories
             serviceCollection.AddTransient<AuthFactory>();
             serviceCollection.AddTransient<TwitterFactory>();
-
-            // Workers
-            // serviceCollection.AddSingleton<MainWorker>();
 
             // Helpers
             serviceCollection.AddTransient<InternalHelpers>();
