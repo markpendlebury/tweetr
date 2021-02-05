@@ -26,7 +26,8 @@ namespace tweetr
 
                 string authUrl = await authFactory.GetAuthUrl();
 
-                Console.WriteLine(authUrl);
+                Console.WriteLine($"Open the following link in a browser to sign into twitter: {authUrl}");
+                
                 TwitterClient userClient = await authFactory.StartListener();
                 if (userClient != null)
                 {

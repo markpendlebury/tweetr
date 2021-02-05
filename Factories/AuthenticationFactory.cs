@@ -39,16 +39,12 @@ namespace tweetr.Factories
 
                 for (; ; )
                 {
-
-                    Console.WriteLine("Listening for response from Twitter...");
-
                     HttpListenerContext context = listener.GetContext();
                     HttpListenerRequest request = context.Request;
 
                     using( HttpListenerResponse response = context.Response )
                     {
                         var appClient = new TwitterClient(Environment.GetEnvironmentVariable("CONSUMER_KEY"), Environment.GetEnvironmentVariable("CONSUMER_SECRET"));
-
 
                         // Extract the information from the redirection url
                         var requestParameters = await RequestCredentialsParameters.FromCallbackUrlAsync(context.Request.Url.Query, _myAuthRequestStore);
