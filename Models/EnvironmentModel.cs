@@ -4,14 +4,14 @@ namespace tweetr.Models
 {
     public class EnvironmentModel
     {
-        public string CONSUMER_KEY
+        public string CONSUMER_API_KEY
         {
-            get { return Environment.GetEnvironmentVariable("CONSUMER_KEY"); }
+            get { return Environment.GetEnvironmentVariable("CONSUMER_API_KEY"); }
         }
 
-        public string CONSUMER_SECRET
+        public string CONSUMER_API_SECRET
         {
-            get { return Environment.GetEnvironmentVariable("CONSUMER_SECRET"); }
+            get { return Environment.GetEnvironmentVariable("CONSUMER_API_SECRET"); }
         }
 
     }

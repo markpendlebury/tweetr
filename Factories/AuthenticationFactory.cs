@@ -14,7 +14,7 @@ namespace tweetr.Factories
         internal async Task<string> GetAuthUrl()
         {
 
-            var appClient = new TwitterClient(Environment.GetEnvironmentVariable("CONSUMER_KEY"), Environment.GetEnvironmentVariable("CONSUMER_SECRET"));
+            var appClient = new TwitterClient(Environment.GetEnvironmentVariable("CONSUMER_API_KEY"), Environment.GetEnvironmentVariable("CONSUMER_API_SECRET"));
             var authenticationRequestId = Guid.NewGuid().ToString();
             var redirectPath = "http://localhost:5001/validateTwitterAuth/";
 
@@ -44,7 +44,7 @@ namespace tweetr.Factories
 
                     using( HttpListenerResponse response = context.Response )
                     {
-                        var appClient = new TwitterClient(Environment.GetEnvironmentVariable("CONSUMER_KEY"), Environment.GetEnvironmentVariable("CONSUMER_SECRET"));
+                        var appClient = new TwitterClient(Environment.GetEnvironmentVariable("CONSUMER_API_KEY"), Environment.GetEnvironmentVariable("CONSUMER_API_SECRET"));
 
                         // Extract the information from the redirection url
                         var requestParameters = await RequestCredentialsParameters.FromCallbackUrlAsync(context.Request.Url.Query, _myAuthRequestStore);
