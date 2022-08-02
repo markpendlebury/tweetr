@@ -16,7 +16,7 @@ namespace tweetr.Factories
     {
         private int initialPageSize = 10;
         private double scanDelay = 0.3; // Seconds
-        private double searchDelay = 30; // Seconds
+        private double searchDelay = 60; // Seconds
 
         private readonly InternalHelpers internalHelpers;
         private readonly Colors colors;
